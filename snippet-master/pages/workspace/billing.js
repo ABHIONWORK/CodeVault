@@ -4,7 +4,7 @@ import MainContent from '../../Components/MainContent/MainContent';
 import styled from 'styled-components';
 import { useThemeContext } from '../../context/themeContext';
 import Button from '../../Components/Button/Button';
-import Private from '../../Components/auth/Private';
+import OrganizationGuard from '../../Components/auth/OrganizationGuard';
 
 export default function BillingDashboard() {
     const theme = useThemeContext();
@@ -33,7 +33,7 @@ export default function BillingDashboard() {
     return (
         <Layout>
             <MainContent>
-                <Private>
+                <OrganizationGuard>
                     <BillingStyled theme={theme}>
                         <div className="header-con">
                             <h1>Workspace Billing</h1>
@@ -107,7 +107,7 @@ export default function BillingDashboard() {
                             </div>
                         </div>
                     </BillingStyled>
-                </Private>
+                </OrganizationGuard>
             </MainContent>
         </Layout>
     );

@@ -1,16 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../../Components/Layout';
 import MainContent from '../../Components/MainContent/MainContent';
 import styled from 'styled-components';
 import { useThemeContext } from '../../context/themeContext';
 import Button from '../../Components/Button/Button';
-import Private from '../../Components/auth/Private';
+import { isAuth } from '../../actions/auth';
+import Link from 'next/link';
 
 export default function NewSnippet() {
     const theme = useThemeContext();
     const [title, setTitle] = useState('');
     const [code, setCode] = useState('');
     const [visibility, setVisibility] = useState('PRIVATE');
+    const [authenticated, setAuthenticated] = useState(true);
+
+    useEffect(() => {
+        setAuthenticated(isAuth());
+    }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -21,12 +27,31 @@ export default function NewSnippet() {
     return (
         <Layout>
             <MainContent>
-                <Private>
-                    <NewSnippetStyled theme={theme}>
-                        <div className="header-con">
-                            <h1>Create New Snippet</h1>
+                <NewSnippetStyled theme={theme}>
+                    <div className="header-con">
+                        <h1>Create New Snippet</h1>
+                    </div>
+                    
+                    {!authenticated ? (
+                        <div className="unauthorized-con">
+                            <div className="error-card">
+                                <h2>403 Unauthorized</h2>
+                                <p>Please log in to create snippets.</p>
+                                <Link href="/login">
+                                    <Button
+                                        name={'Log In'}
+                                        type={'button'}
+                                        selector={'btn-login'}
+                                        padding={'.8rem 2rem'}
+                                        borderRad={'0.8rem'}
+                                        fw={'bold'}
+                                        fs={'1.2rem'}
+                                        backgound={theme.colorPrimary || '#6c5ce7'}
+                                    />
+                                </Link>
+                            </div>
                         </div>
-                        
+                    ) : (
                         <form onSubmit={handleSubmit} className="form-container">
                             <div className="form-group">
                                 <label>Title</label>
@@ -98,8 +123,8 @@ export default function NewSnippet() {
                                 />
                             </div>
                         </form>
-                    </NewSnippetStyled>
-                </Private>
+                    )}
+                </NewSnippetStyled>
             </MainContent>
         </Layout>
     );
@@ -232,5 +257,33 @@ const NewSnippetStyled = styled.div`
             }
         }
     }
+    
+    .unauthorized-con {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+        
+        .error-card {
+            background: ${props => props.theme.colorBg2};
+            border-radius: 1rem;
+            box-shadow: ${props => props.theme.shadow3};
+            border: 1px solid ${props => props.theme.borderColor};
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            
+            h2 {
+                color: ${props => props.theme.colorDanger || '#e74c3c'};
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+            
+            p {
+                color: ${props => props.theme.colorGrey1};
+                font-size: 1.1rem;
+                margin-bottom: 2rem;
+            }
+        }
+    }
 `;
-
