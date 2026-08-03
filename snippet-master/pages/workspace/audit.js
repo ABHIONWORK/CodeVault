@@ -1,20 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../../Components/Layout';
 import MainContent from '../../Components/MainContent/MainContent';
 import styled from 'styled-components';
 import { useThemeContext } from '../../context/themeContext';
 import Button from '../../Components/Button/Button';
 import OrganizationGuard from '../../Components/auth/OrganizationGuard';
+import { getCookie } from '../../actions/auth';
 
 export default function AuditTrails() {
     const theme = useThemeContext();
-    
-    // Mock audit logs
-    const [logs, setLogs] = useState([
-        { id: 1, action: 'CREATE', entityType: 'SNIPPET', entityId: 101, user: 'John Doe', timestamp: '2023-10-27 14:32:00' },
-        { id: 2, action: 'UPDATE', entityType: 'SNIPPET', entityId: 101, user: 'John Doe', timestamp: '2023-10-27 15:00:12' },
-        { id: 3, action: 'DELETE', entityType: 'SNIPPET', entityId: 99, user: 'Admin User', timestamp: '2023-10-28 09:15:45' }
-    ]);
+    const [logs, setLogs] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchAuditTrails = async () => {
+            const token = getCookie('token');
+            try {
+                const res = await fetch('https://codevault-backend-01wi.onrender.com/api/v1/workspace/audit-trails', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setLogs(data);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAuditTrails();
+    }, []);
 
     const handleSimulate429 = () => {
         window.dispatchEvent(new CustomEvent('api_error_429'));
@@ -46,8 +65,6 @@ export default function AuditTrails() {
                                         <th>Timestamp</th>
                                         <th>User</th>
                                         <th>Action</th>
-                                        <th>Entity</th>
-                                        <th>Entity ID</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -56,12 +73,10 @@ export default function AuditTrails() {
                                             <td>{log.timestamp}</td>
                                             <td className="user-col">{log.user}</td>
                                             <td>
-                                                <span className={`badge ${log.action.toLowerCase()}`}>
+                                                <span className={`badge ${log.action ? log.action.toLowerCase() : 'unknown'}`}>
                                                     {log.action}
                                                 </span>
                                             </td>
-                                            <td>{log.entityType}</td>
-                                            <td>#{log.entityId}</td>
                                         </tr>
                                     ))}
                                 </tbody>

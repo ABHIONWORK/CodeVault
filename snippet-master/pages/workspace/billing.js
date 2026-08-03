@@ -1,34 +1,53 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../../Components/Layout';
 import MainContent from '../../Components/MainContent/MainContent';
 import styled from 'styled-components';
 import { useThemeContext } from '../../context/themeContext';
 import Button from '../../Components/Button/Button';
 import OrganizationGuard from '../../Components/auth/OrganizationGuard';
+import { getCookie } from '../../actions/auth';
 
 export default function BillingDashboard() {
     const theme = useThemeContext();
-    const [loading, setLoading] = useState(false);
-    
-    // Mock data
-    const currentTier = 'PRO';
-    const activeUsers = 12;
+    const [loading, setLoading] = useState(true);
+    const [billingInfo, setBillingInfo] = useState({ plan: 'FREE' });
+
+    useEffect(() => {
+        const fetchBillingInfo = async () => {
+            const token = getCookie('token');
+            try {
+                const res = await fetch('https://codevault-backend-01wi.onrender.com/api/v1/workspace/billing', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setBillingInfo(data);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchBillingInfo();
+    }, []);
 
     const handleManageBilling = async () => {
-        setLoading(true);
-        setTimeout(() => {
-            alert('Redirecting to Stripe Customer Portal (Mock)');
-            setLoading(false);
-        }, 1000);
+        alert('Redirecting to Stripe Customer Portal (Mock)');
     };
 
-    const handleUpgrade = async () => {
-        setLoading(true);
-        setTimeout(() => {
-            alert('Redirecting to Stripe Checkout (Mock)');
-            setLoading(false);
-        }, 1000);
+    const handleUpgrade = async (plan) => {
+        alert(`Redirecting to Stripe Checkout for ${plan} (Mock)`);
     };
+
+    const plans = [
+        { name: 'FREE', price: '$0', features: ['Up to 3 members', '100 snippets', 'Community support'] },
+        { name: 'PRO', price: '$15', features: ['Unlimited members', 'Unlimited snippets', 'Priority support', 'AI Assistant (500/mo)'] },
+        { name: 'ENTERPRISE', price: 'Custom', features: ['SSO & SAML', 'Custom contracts', 'Dedicated success manager', 'Unlimited AI'] }
+    ];
 
     return (
         <Layout>
@@ -37,74 +56,57 @@ export default function BillingDashboard() {
                     <BillingStyled theme={theme}>
                         <div className="header-con">
                             <h1>Workspace Billing</h1>
+                            {loading && <span style={{ color: theme.colorGrey1 }}>Loading billing status...</span>}
                         </div>
 
-                        <div className="card">
-                            <div className="card-header">
-                                <div>
-                                    <h3>Current Plan</h3>
-                                    <p>You are currently on the {currentTier} plan.</p>
-                                </div>
-                                <span className="badge">{currentTier}</span>
-                            </div>
-                            <div className="card-body action-area">
-                                <div className="info">
-                                    <p>
-                                        You have <strong>{activeUsers}</strong> active users. Your next invoice will be for <strong>${activeUsers * 15}.00</strong>.
-                                    </p>
-                                </div>
-                                <div className="buttons">
-                                    <Button
-                                        name={'Manage Billing'}
-                                        type={'button'}
-                                        selector={'btn-manage'}
-                                        padding={'.8rem 1.5rem'}
-                                        borderRad={'0.8rem'}
-                                        fw={'bold'}
-                                        fs={'1rem'}
-                                        backgound={'transparent'}
-                                        click={handleManageBilling}
-                                    />
-                                    <Button
-                                        name={'Upgrade Plan'}
-                                        type={'button'}
-                                        selector={'btn-upgrade'}
-                                        padding={'.8rem 1.5rem'}
-                                        borderRad={'0.8rem'}
-                                        fw={'bold'}
-                                        fs={'1rem'}
-                                        backgound={theme.colorPrimary || '#6c5ce7'}
-                                        click={handleUpgrade}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="card">
-                            <div className="card-header">
-                                <h3>Plan Limits</h3>
-                            </div>
-                            <div className="card-body limits">
-                                <div className="limit-item">
-                                    <div className="limit-text">
-                                        <span>Team Members (Unlimited)</span>
-                                        <span>12 / ∞</span>
+                        <div className="pricing-grid">
+                            {plans.map(plan => {
+                                const isActive = billingInfo.plan === plan.name;
+                                return (
+                                    <div key={plan.name} className={`pricing-card ${isActive ? 'active' : ''}`}>
+                                        {isActive && <div className="active-badge">Current Plan</div>}
+                                        <h3>{plan.name}</h3>
+                                        <div className="price">{plan.price}<span>/mo</span></div>
+                                        <ul className="features">
+                                            {plan.features.map((feature, i) => (
+                                                <li key={i}>
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.colorPrimary || '#6c5ce7'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                    {feature}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <div className="card-action">
+                                            {isActive ? (
+                                                <Button
+                                                    name={'Manage Subscription'}
+                                                    type={'button'}
+                                                    selector={'btn-manage'}
+                                                    padding={'.8rem 1.5rem'}
+                                                    borderRad={'0.8rem'}
+                                                    fw={'bold'}
+                                                    fs={'1rem'}
+                                                    backgound={'transparent'}
+                                                    click={handleManageBilling}
+                                                />
+                                            ) : (
+                                                <Button
+                                                    name={'Upgrade Plan'}
+                                                    type={'button'}
+                                                    selector={'btn-upgrade'}
+                                                    padding={'.8rem 1.5rem'}
+                                                    borderRad={'0.8rem'}
+                                                    fw={'bold'}
+                                                    fs={'1rem'}
+                                                    backgound={theme.colorPrimary || '#6c5ce7'}
+                                                    click={() => handleUpgrade(plan.name)}
+                                                />
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="progress-bar">
-                                        <div className="progress" style={{ width: '10%', background: theme.colorPrimary }}></div>
-                                    </div>
-                                </div>
-
-                                <div className="limit-item">
-                                    <div className="limit-text">
-                                        <span>AI Assistant Requests (500/mo limit)</span>
-                                        <span>342 / 500</span>
-                                    </div>
-                                    <div className="progress-bar">
-                                        <div className="progress" style={{ width: '68%', background: theme.colorSuccess || '#2ecc71' }}></div>
-                                    </div>
-                                </div>
-                            </div>
+                                );
+                            })}
                         </div>
                     </BillingStyled>
                 </OrganizationGuard>
@@ -118,6 +120,9 @@ const BillingStyled = styled.div`
     
     .header-con {
         margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         h1 {
             color: ${props => props.theme.colorTextLight};
             font-size: 2.5rem;
@@ -125,101 +130,101 @@ const BillingStyled = styled.div`
         }
     }
     
-    .card {
-        background: ${props => props.theme.colorBg2};
-        border-radius: 1rem;
-        box-shadow: ${props => props.theme.shadow3};
-        border: 1px solid ${props => props.theme.borderColor};
-        margin-bottom: 2rem;
-        overflow: hidden;
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
         
-        .card-header {
-            padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid ${props => props.theme.borderColor};
+        .pricing-card {
+            background: ${props => props.theme.colorBg2};
+            border-radius: 1rem;
+            box-shadow: ${props => props.theme.shadow3};
+            border: 1px solid ${props => props.theme.borderColor};
+            padding: 2.5rem 2rem;
+            position: relative;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            
+            &:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+            
+            &.active {
+                border-color: ${props => props.theme.colorPrimary};
+                background: linear-gradient(180deg, ${props => props.theme.colorBg2} 0%, rgba(108, 92, 231, 0.05) 100%);
+            }
+            
+            .active-badge {
+                position: absolute;
+                top: -12px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${props => props.theme.colorPrimary};
+                color: white;
+                padding: 0.3rem 1rem;
+                border-radius: 2rem;
+                font-size: 0.8rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
             
             h3 {
-                color: ${props => props.theme.colorTextLight};
+                color: ${props => props.theme.colorGrey2};
                 font-size: 1.2rem;
                 font-weight: 600;
-            }
-            p {
-                color: ${props => props.theme.colorGrey2};
-                margin-top: 0.5rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 1rem;
             }
             
-            .badge {
-                background: ${props => props.theme.colorPrimary2};
-                color: ${props => props.theme.colorWhite};
-                padding: 0.5rem 1rem;
-                border-radius: 2rem;
-                font-weight: 700;
-                font-size: 0.9rem;
-            }
-        }
-        
-        .card-body {
-            padding: 1.5rem;
-            
-            &.action-area {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 1rem;
+            .price {
+                font-size: 3rem;
+                font-weight: 800;
+                color: ${props => props.theme.colorTextLight};
+                margin-bottom: 2rem;
                 
-                .info p {
-                    color: ${props => props.theme.colorGrey0};
-                    strong {
-                        color: ${props => props.theme.colorTextLight};
-                    }
+                span {
+                    font-size: 1rem;
+                    color: ${props => props.theme.colorGrey2};
+                    font-weight: 500;
                 }
+            }
+            
+            .features {
+                list-style: none;
+                margin-bottom: 2.5rem;
+                flex-grow: 1;
                 
-                .buttons {
+                li {
                     display: flex;
+                    align-items: center;
                     gap: 1rem;
-                    
-                    .btn-manage {
-                        border: 1px solid ${props => props.theme.borderColor} !important;
-                        color: ${props => props.theme.colorTextLight} !important;
-                        &:hover {
-                            background: rgba(255,255,255,0.05) !important;
-                        }
-                    }
+                    color: ${props => props.theme.colorGrey0};
+                    margin-bottom: 1rem;
+                    font-size: 1rem;
                 }
             }
             
-            &.limits {
-                display: flex;
-                flex-direction: column;
-                gap: 1.5rem;
+            .card-action {
+                margin-top: auto;
                 
-                .limit-item {
-                    .limit-text {
-                        display: flex;
-                        justify-content: space-between;
-                        color: ${props => props.theme.colorGrey1};
-                        margin-bottom: 0.5rem;
-                        font-weight: 500;
-                        font-size: 0.95rem;
-                    }
+                .btn-manage {
+                    width: 100%;
+                    border: 1px solid ${props => props.theme.colorPrimary} !important;
+                    color: ${props => props.theme.colorPrimary} !important;
+                    background: rgba(108, 92, 231, 0.1) !important;
                     
-                    .progress-bar {
-                        width: 100%;
-                        height: 0.5rem;
-                        background: ${props => props.theme.colorBg3};
-                        border-radius: 1rem;
-                        overflow: hidden;
-                        
-                        .progress {
-                            height: 100%;
-                            border-radius: 1rem;
-                            transition: width 0.5s ease;
-                        }
+                    &:hover {
+                        background: rgba(108, 92, 231, 0.2) !important;
                     }
+                }
+                
+                .btn-upgrade {
+                    width: 100%;
                 }
             }
         }
