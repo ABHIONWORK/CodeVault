@@ -2,7 +2,7 @@
 
 CodeVault is a highly scalable, multi-tenant B2B SaaS platform designed to help professional engineering teams save, collaborate on, and manage their reusable code snippets efficiently. It features AI-assisted coding, seamless GitHub integration, enterprise-grade auditing, and robust role-based access control.
 
-🔗 **[Live Demo: codevault-b2b.vercel.app](https://codevault-b2b.vercel.app)** *(Update this link to your actual deployment URL)*
+🔗 **[Live Demo: codevault-aclrkrmif-singh-ki-toli.vercel.app](https://codevault-aclrkrmif-singh-ki-toli.vercel.app)**
 
 ---
 
