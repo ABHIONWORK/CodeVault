@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import React from 'react'
 import React, { useState, useEffect } from 'react'
 import { UserProvider } from '../context/context'
 import { CrudProvider } from '../context/crudContext'
