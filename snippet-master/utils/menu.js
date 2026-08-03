@@ -1,6 +1,4 @@
-import { isAuth } from "../actions/auth";
-import { bookmarkIcon, box, fire, home, users } from "./Icons";
-
+import { bookmarkIcon, box, fire, home, users, gear, shield } from "./Icons";
 
 const menu = [
     {
@@ -10,6 +8,18 @@ const menu = [
         icon: home
     },
     {
+        id: 2,
+        name: 'Team Library',
+        url: '/workspace/library',
+        icon: users
+    },
+    {
+        id: 3,
+        name: 'New Snippet',
+        url: '/workspace/new-snippet',
+        icon: box
+    },
+    {
         id: 4,
         name: 'Popular',
         url: '/popular',
@@ -17,22 +27,22 @@ const menu = [
     },
     {
         id: 5,
-        name: 'Top Creators',
-        url: `${isAuth() ? '/top-creators' : '/login'}`,
-        icon: users
-    },
-    {
-        id: 2,
         name: 'Bookmarks',
-        url: `${isAuth() ? '/bookmarks' : '/login'}`,
+        url: '/bookmarks',
         icon: bookmarkIcon
     },
     {
-        id: 3,
-        name: 'My Snippets',
-        url: `${isAuth() ? '/snippets': '/login'}`,
-        icon: box
+        id: 6,
+        name: 'Billing',
+        url: '/workspace/billing',
+        icon: gear
     },
+    {
+        id: 7,
+        name: 'Audit Trails',
+        url: '/workspace/audit',
+        icon: shield
+    }
 ]
 
 export default menu
