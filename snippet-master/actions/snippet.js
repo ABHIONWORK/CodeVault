@@ -163,3 +163,25 @@ export const likeSnippet = (token, snippetId, userId) => {
       console.log(err);
     });
 };
+
+export const fetchSidebarData = async (endpoint, token) => {
+  const headers = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  };
+  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  
+  return await fetch(`${baseUrl}/sidebar/${endpoint}`, {
+    method: "GET",
+    headers,
+  })
+    .then((res) => {
+      return res.json();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};

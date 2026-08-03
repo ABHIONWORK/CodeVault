@@ -45,6 +45,9 @@ public class Snippet {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private int bookmarksCount;
 
     @PrePersist
     protected void onCreate() {

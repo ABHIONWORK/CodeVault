@@ -53,7 +53,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/api/auth/**").permitAll()
+                auth.requestMatchers("/api/auth/**", "/api/sidebar/top-creators", "/api/sidebar/popular").permitAll()
                     .anyRequest().authenticated()
             );
 

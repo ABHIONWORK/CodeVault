@@ -1,60 +1,65 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Layout from '../../Components/Layout'
 import MainContent from '../../Components/MainContent/MainContent'
 import { useSnippetContext } from '../../context/snippetContext'
 import Snippet from '../../Components/Snippet/Snippet'
 import styled from 'styled-components'
 import { useThemeContext } from '../../context/themeContext'
-import Button from '../../Components/Button/Button'
-import { down } from '../../utils/Icons'
 import Loading from '../../Components/Loading/Loading'
-import { isAuth } from '../../actions/auth'
-import Private from '../../Components/auth/Private'
+import { isAuth, getCookie } from '../../actions/auth'
+import { fetchSidebarData } from '../../actions/snippet'
+import Link from 'next/link'
 
 function Snippets() {
-    const { snippets, loading, searchState, loadMore, expandSnippet } = useSnippetContext()
+    const { expandSnippet } = useSnippetContext()
     const theme = useThemeContext()
+    const [snippets, setSnippets] = useState([])
+    const [loading, setLoading] = useState(true)
+    const authenticated = isAuth()
 
-    const {searched, message} = searchState
-
-    //filter out the snippets that are not created by the user
-    const userSnippets = snippets.filter(snippet => snippet.postedBy._id === isAuth()._id)
+    useEffect(() => {
+        if (authenticated) {
+            const token = getCookie('token')
+            fetchSidebarData('my-snippets', token).then(data => {
+                if (data && !data.error) {
+                    setSnippets(data)
+                }
+                setLoading(false)
+            })
+        } else {
+            setLoading(false)
+        }
+    }, [authenticated])
 
     return (
         <Layout>
-            <MainContent >
-                <Private>
+            <MainContent>
                 <div className="main-title">
-                    <h1>Filters Goes Here...</h1>
+                    <h1>My Snippets</h1>
                 </div>
-                <div className="loading-con">
-                    {
-                        loading && <Loading />
-                    }
-                </div>
-                    {!loading && <AllSnippetsStyed theme={theme} expand={expandSnippet}>
-                    {
-                        userSnippets.map(snippet => {
-                            return <Snippet key={snippet._id} snippet={snippet} />
-                        })
-                    }
-                </AllSnippetsStyed>}
-                {loading || userSnippets.length > 5 && <div className="load-more">
-                    <Button
-                        name={'Load More'}
-                        type={'submit'}
-                        selector={'btn-login'}
-                        padding={'.8rem 2rem'}
-                        borderRad={'0.8rem'}
-                        fw={'bold'}
-                        fs={'1.2rem'}
-                        backgound={theme.colorPrimary2}
-                        icon={down}
-                        blob={'blob'}
-                        click={loadMore}
-                    />
-                </div>}
-                </Private>
+                
+                {!authenticated ? (
+                    <div className="empty-state">
+                        <h3>Please <Link href="/login">log in</Link> to view your snippets</h3>
+                    </div>
+                ) : (
+                    <>
+                        <div className="loading-con">
+                            {loading && <Loading />}
+                        </div>
+                        {!loading && (
+                            <AllSnippetsStyed theme={theme} expand={expandSnippet}>
+                                {snippets.length === 0 ? (
+                                    <h3>You haven't created any snippets yet.</h3>
+                                ) : (
+                                    snippets.map(snippet => (
+                                        <Snippet key={snippet.id} snippet={snippet} />
+                                    ))
+                                )}
+                            </AllSnippetsStyed>
+                        )}
+                    </>
+                )}
             </MainContent>
         </Layout>
     )

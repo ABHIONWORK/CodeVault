@@ -20,4 +20,11 @@ public interface SnippetRepository extends JpaRepository<Snippet, Long> {
            "(s.visibility = 'ORGANIZATION' AND s.organization.id = :orgId) OR " +
            "(s.visibility = 'PRIVATE' AND s.author.id = :userId)")
     List<Snippet> findVisibleSnippets(@Param("orgId") Long orgId, @Param("userId") Long userId);
+
+    List<Snippet> findByAuthorEmail(String email);
+
+    @Query("SELECT s FROM Snippet s JOIN User u ON s IN elements(u.bookmarkedSnippets) WHERE u.email = :email")
+    List<Snippet> findBookmarksByUserEmail(@Param("email") String email);
+
+    List<Snippet> findTop10ByOrderByBookmarksCountDesc();
 }
