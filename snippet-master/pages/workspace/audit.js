@@ -1,6 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Layout from '../../Components/Layout';
+import MainContent from '../../Components/MainContent/MainContent';
+import styled from 'styled-components';
+import { useThemeContext } from '../../context/themeContext';
+import Button from '../../Components/Button/Button';
+import Private from '../../Components/auth/Private';
 
 export default function AuditTrails() {
+    const theme = useThemeContext();
+    
     // Mock audit logs
     const [logs, setLogs] = useState([
         { id: 1, action: 'CREATE', entityType: 'SNIPPET', entityId: 101, user: 'John Doe', timestamp: '2023-10-27 14:32:00' },
@@ -9,55 +17,150 @@ export default function AuditTrails() {
     ]);
 
     const handleSimulate429 = () => {
-        // Dispatching a custom event to trigger the global 429 handler in _app.js
         window.dispatchEvent(new CustomEvent('api_error_429'));
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 py-10 px-4 sm:px-6 lg:px-8 text-white">
-            <div className="max-w-6xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold">Workspace Audit Trails</h1>
-                    <button 
-                        onClick={handleSimulate429}
-                        className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium"
-                    >
-                        Simulate Rate Limit (429)
-                    </button>
-                </div>
-
-                <div className="bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-                    <table className="min-w-full divide-y divide-gray-700">
-                        <thead className="bg-gray-900">
-                            <tr>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Timestamp</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Action</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Entity</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Entity ID</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-gray-800 divide-y divide-gray-700">
-                            {logs.map((log) => (
-                                <tr key={log.id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{log.timestamp}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{log.user}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                            log.action === 'CREATE' ? 'bg-green-100 text-green-800' :
-                                            log.action === 'DELETE' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                            {log.action}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{log.entityType}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">#{log.entityId}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <Layout>
+            <MainContent>
+                <Private>
+                    <AuditStyled theme={theme}>
+                        <div className="header-con">
+                            <h1>Workspace Audit Trails</h1>
+                            <Button
+                                name={'Simulate Rate Limit (429)'}
+                                type={'button'}
+                                selector={'btn-danger'}
+                                padding={'.8rem 1.5rem'}
+                                borderRad={'0.8rem'}
+                                fw={'bold'}
+                                fs={'1.2rem'}
+                                backgound={theme.colorDanger || '#e74c3c'}
+                                click={handleSimulate429}
+                            />
+                        </div>
+                        <div className="table-con">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>User</th>
+                                        <th>Action</th>
+                                        <th>Entity</th>
+                                        <th>Entity ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {logs.map((log) => (
+                                        <tr key={log.id}>
+                                            <td>{log.timestamp}</td>
+                                            <td className="user-col">{log.user}</td>
+                                            <td>
+                                                <span className={`badge ${log.action.toLowerCase()}`}>
+                                                    {log.action}
+                                                </span>
+                                            </td>
+                                            <td>{log.entityType}</td>
+                                            <td>#{log.entityId}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </AuditStyled>
+                </Private>
+            </MainContent>
+        </Layout>
     );
 }
+
+const AuditStyled = styled.div`
+    padding: 2rem;
+    
+    .header-con {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        
+        h1 {
+            color: ${props => props.theme.colorTextLight};
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+    }
+    
+    .table-con {
+        background: ${props => props.theme.colorBg2};
+        border-radius: 1rem;
+        box-shadow: ${props => props.theme.shadow3};
+        overflow: hidden;
+        border: 1px solid ${props => props.theme.borderColor};
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            
+            thead {
+                background: rgba(255, 255, 255, 0.03);
+                border-bottom: 1px solid ${props => props.theme.borderColor};
+                
+                th {
+                    padding: 1rem 1.5rem;
+                    text-align: left;
+                    color: ${props => props.theme.colorGrey2};
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    font-size: 0.9rem;
+                    letter-spacing: 1px;
+                }
+            }
+            
+            tbody {
+                tr {
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    transition: all 0.3s ease;
+                    
+                    &:hover {
+                        background: rgba(255, 255, 255, 0.02);
+                    }
+                    
+                    &:last-child {
+                        border-bottom: none;
+                    }
+                    
+                    td {
+                        padding: 1rem 1.5rem;
+                        color: ${props => props.theme.colorGrey0};
+                        
+                        &.user-col {
+                            color: ${props => props.theme.colorTextLight};
+                            font-weight: 500;
+                        }
+                        
+                        .badge {
+                            padding: 0.4rem 0.8rem;
+                            border-radius: 2rem;
+                            font-size: 0.8rem;
+                            font-weight: 700;
+                            
+                            &.create {
+                                background: rgba(46, 204, 113, 0.2);
+                                color: #2ecc71;
+                            }
+                            &.update {
+                                background: rgba(52, 152, 219, 0.2);
+                                color: #3498db;
+                            }
+                            &.delete {
+                                background: rgba(231, 76, 60, 0.2);
+                                color: #e74c3c;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+`;
+

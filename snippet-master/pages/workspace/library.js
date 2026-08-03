@@ -1,6 +1,13 @@
 import { useState } from 'react';
+import Layout from '../../Components/Layout';
+import MainContent from '../../Components/MainContent/MainContent';
+import styled from 'styled-components';
+import { useThemeContext } from '../../context/themeContext';
+import Button from '../../Components/Button/Button';
+import Private from '../../Components/auth/Private';
 
 export default function TeamLibrary() {
+    const theme = useThemeContext();
     const [commentText, setCommentText] = useState('');
 
     // Mock data for UI demonstration
@@ -23,62 +30,210 @@ export default function TeamLibrary() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 py-10 px-4 sm:px-6 lg:px-8 text-white">
-            <div className="max-w-4xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold">Team Library</h1>
-                    <div className="flex space-x-2">
-                        <input type="text" placeholder="Search team snippets..." className="rounded-md border-gray-700 bg-gray-800 text-white px-3 py-1" />
-                        <button className="bg-indigo-600 px-3 py-1 rounded-md">Filter</button>
-                    </div>
-                </div>
-
-                <div className="space-y-8">
-                    {snippets.map((snippet) => (
-                        <div key={snippet.id} className="bg-gray-800 shadow sm:rounded-lg overflow-hidden">
-                            <div className="px-4 py-5 sm:px-6 border-b border-gray-700">
-                                <h3 className="text-lg leading-6 font-medium text-white">{snippet.title}</h3>
-                                <p className="mt-1 max-w-2xl text-sm text-gray-400">Shared by {snippet.author}</p>
-                            </div>
-                            <div className="px-4 py-5 sm:p-6 bg-gray-900">
-                                <pre className="text-sm text-gray-300 font-mono">
-                                    <code>{snippet.code}</code>
-                                </pre>
-                            </div>
-                            
-                            {/* Comments Section */}
-                            <div className="px-4 py-4 sm:px-6 bg-gray-750 border-t border-gray-700">
-                                <h4 className="text-sm font-medium text-gray-300 mb-4">Team Discussion</h4>
-                                <ul className="space-y-4 mb-4">
-                                    {snippet.comments.map(comment => (
-                                        <li key={comment.id} className="text-sm">
-                                            <span className="font-semibold text-indigo-400">{comment.author}: </span>
-                                            <span className="text-gray-300">{comment.content}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                                <form onSubmit={(e) => handleComment(e, snippet.id)} className="flex items-start space-x-4">
-                                    <div className="min-w-0 flex-1">
-                                        <textarea
-                                            rows={2}
-                                            className="block w-full rounded-md border-gray-700 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-900 text-white px-3 py-2"
-                                            placeholder="Leave a comment or annotation..."
-                                            value={commentText}
-                                            onChange={(e) => setCommentText(e.target.value)}
-                                        />
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
-                                    >
-                                        Post
-                                    </button>
-                                </form>
+        <Layout>
+            <MainContent>
+                <Private>
+                    <LibraryStyled theme={theme}>
+                        <div className="header-con">
+                            <h1>Team Library</h1>
+                            <div className="search-bar">
+                                <input type="text" placeholder="Search team snippets..." />
+                                <Button
+                                    name={'Filter'}
+                                    type={'button'}
+                                    selector={'btn-filter'}
+                                    padding={'.5rem 1.2rem'}
+                                    borderRad={'0.5rem'}
+                                    fw={'bold'}
+                                    fs={'1rem'}
+                                    backgound={theme.colorPrimary || '#6c5ce7'}
+                                />
                             </div>
                         </div>
-                    ))}
-                </div>
-            </div>
-        </div>
+
+                        <div className="snippets-list">
+                            {snippets.map((snippet) => (
+                                <div key={snippet.id} className="snippet-card">
+                                    <div className="card-header">
+                                        <h3>{snippet.title}</h3>
+                                        <p>Shared by {snippet.author}</p>
+                                    </div>
+                                    <div className="card-code">
+                                        <pre><code>{snippet.code}</code></pre>
+                                    </div>
+                                    
+                                    <div className="card-comments">
+                                        <h4>Team Discussion</h4>
+                                        <ul>
+                                            {snippet.comments.map(comment => (
+                                                <li key={comment.id}>
+                                                    <span className="author">{comment.author}: </span>
+                                                    <span className="content">{comment.content}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <form onSubmit={(e) => handleComment(e, snippet.id)}>
+                                            <textarea
+                                                rows={2}
+                                                placeholder="Leave a comment or annotation..."
+                                                value={commentText}
+                                                onChange={(e) => setCommentText(e.target.value)}
+                                            />
+                                            <Button
+                                                name={'Post'}
+                                                type={'submit'}
+                                                selector={'btn-post'}
+                                                padding={'.6rem 1.5rem'}
+                                                borderRad={'0.5rem'}
+                                                fw={'bold'}
+                                                fs={'1rem'}
+                                                backgound={theme.colorPrimary || '#6c5ce7'}
+                                            />
+                                        </form>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </LibraryStyled>
+                </Private>
+            </MainContent>
+        </Layout>
     );
 }
+
+const LibraryStyled = styled.div`
+    padding: 2rem;
+    
+    .header-con {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+        
+        h1 {
+            color: ${props => props.theme.colorTextLight};
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            
+            input {
+                padding: 0.6rem 1.2rem;
+                border-radius: 0.5rem;
+                background: ${props => props.theme.colorBg3};
+                border: 1px solid ${props => props.theme.borderColor};
+                color: ${props => props.theme.colorTextLight};
+                outline: none;
+                
+                &:focus {
+                    border-color: ${props => props.theme.colorPrimary};
+                }
+            }
+        }
+    }
+    
+    .snippets-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        
+        .snippet-card {
+            background: ${props => props.theme.colorBg2};
+            border-radius: 1rem;
+            box-shadow: ${props => props.theme.shadow3};
+            border: 1px solid ${props => props.theme.borderColor};
+            overflow: hidden;
+            
+            .card-header {
+                padding: 1.5rem;
+                background: rgba(255, 255, 255, 0.03);
+                border-bottom: 1px solid ${props => props.theme.borderColor};
+                
+                h3 {
+                    color: ${props => props.theme.colorTextLight};
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                }
+                p {
+                    color: ${props => props.theme.colorGrey2};
+                    margin-top: 0.25rem;
+                    font-size: 0.9rem;
+                }
+            }
+            
+            .card-code {
+                padding: 1.5rem;
+                background: #1e1e1e;
+                
+                pre {
+                    color: #d4d4d4;
+                    font-family: 'Fira Code', monospace;
+                    font-size: 0.95rem;
+                    overflow-x: auto;
+                }
+            }
+            
+            .card-comments {
+                padding: 1.5rem;
+                border-top: 1px solid ${props => props.theme.borderColor};
+                background: rgba(255, 255, 255, 0.01);
+                
+                h4 {
+                    color: ${props => props.theme.colorGrey1};
+                    font-size: 1rem;
+                    margin-bottom: 1rem;
+                    font-weight: 600;
+                }
+                
+                ul {
+                    list-style: none;
+                    margin-bottom: 1.5rem;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.8rem;
+                    
+                    li {
+                        font-size: 0.95rem;
+                        
+                        .author {
+                            color: ${props => props.theme.colorPrimary2};
+                            font-weight: 600;
+                        }
+                        
+                        .content {
+                            color: ${props => props.theme.colorGrey0};
+                        }
+                    }
+                }
+                
+                form {
+                    display: flex;
+                    gap: 1rem;
+                    align-items: flex-start;
+                    
+                    textarea {
+                        flex: 1;
+                        padding: 0.8rem 1.2rem;
+                        border-radius: 0.5rem;
+                        background: ${props => props.theme.colorBg3};
+                        border: 1px solid ${props => props.theme.borderColor};
+                        color: ${props => props.theme.colorTextLight};
+                        outline: none;
+                        resize: none;
+                        
+                        &:focus {
+                            border-color: ${props => props.theme.colorPrimary};
+                        }
+                    }
+                }
+            }
+        }
+    }
+`;
+

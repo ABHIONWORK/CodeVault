@@ -1,6 +1,13 @@
 import { useState } from 'react';
+import Layout from '../../Components/Layout';
+import MainContent from '../../Components/MainContent/MainContent';
+import styled from 'styled-components';
+import { useThemeContext } from '../../context/themeContext';
+import Button from '../../Components/Button/Button';
+import Private from '../../Components/auth/Private';
 
 export default function NewSnippet() {
+    const theme = useThemeContext();
     const [title, setTitle] = useState('');
     const [code, setCode] = useState('');
     const [visibility, setVisibility] = useState('PRIVATE');
@@ -12,88 +19,218 @@ export default function NewSnippet() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 py-10 px-4 sm:px-6 lg:px-8 text-white">
-            <div className="max-w-3xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8">Create New Snippet</h1>
-                
-                <form onSubmit={handleSubmit} className="bg-gray-800 shadow sm:rounded-lg p-6 space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-300">Title</label>
-                        <input
-                            type="text"
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-700 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-900 text-white px-3 py-2"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-300">Code</label>
-                        <textarea
-                            required
-                            rows={10}
-                            className="mt-1 block w-full rounded-md border-gray-700 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-900 text-white px-3 py-2 font-mono"
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                        />
-                    </div>
-
-                    <fieldset>
-                        <legend className="text-sm font-medium text-gray-300">Visibility (Personal vs Team)</legend>
-                        <div className="mt-4 space-y-4">
-                            <div className="flex items-center">
-                                <input
-                                    id="visibility-private"
-                                    name="visibility"
-                                    type="radio"
-                                    checked={visibility === 'PRIVATE'}
-                                    onChange={() => setVisibility('PRIVATE')}
-                                    className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-700 bg-gray-900"
-                                />
-                                <label htmlFor="visibility-private" className="ml-3 block text-sm font-medium text-white">
-                                    Personal (Only me)
-                                </label>
-                            </div>
-                            <div className="flex items-center">
-                                <input
-                                    id="visibility-organization"
-                                    name="visibility"
-                                    type="radio"
-                                    checked={visibility === 'ORGANIZATION'}
-                                    onChange={() => setVisibility('ORGANIZATION')}
-                                    className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-700 bg-gray-900"
-                                />
-                                <label htmlFor="visibility-organization" className="ml-3 block text-sm font-medium text-white">
-                                    Team Workspace (My Organization)
-                                </label>
-                            </div>
-                            <div className="flex items-center">
-                                <input
-                                    id="visibility-public"
-                                    name="visibility"
-                                    type="radio"
-                                    checked={visibility === 'PUBLIC'}
-                                    onChange={() => setVisibility('PUBLIC')}
-                                    className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-700 bg-gray-900"
-                                />
-                                <label htmlFor="visibility-public" className="ml-3 block text-sm font-medium text-white">
-                                    Public (Everyone on CodeVault)
-                                </label>
-                            </div>
+        <Layout>
+            <MainContent>
+                <Private>
+                    <NewSnippetStyled theme={theme}>
+                        <div className="header-con">
+                            <h1>Create New Snippet</h1>
                         </div>
-                    </fieldset>
+                        
+                        <form onSubmit={handleSubmit} className="form-container">
+                            <div className="form-group">
+                                <label>Title</label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="e.g. React API Fetch Hook"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                />
+                            </div>
 
-                    <div>
-                        <button
-                            type="submit"
-                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                        >
-                            Save Snippet
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                            <div className="form-group">
+                                <label>Code</label>
+                                <textarea
+                                    required
+                                    rows={10}
+                                    placeholder="Paste your code here..."
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
+                                />
+                            </div>
+
+                            <fieldset className="visibility-group">
+                                <legend>Visibility (Personal vs Team)</legend>
+                                <div className="radio-options">
+                                    <label className="radio-label">
+                                        <input
+                                            name="visibility"
+                                            type="radio"
+                                            checked={visibility === 'PRIVATE'}
+                                            onChange={() => setVisibility('PRIVATE')}
+                                        />
+                                        <span className="radio-text">Personal (Only me)</span>
+                                    </label>
+                                    
+                                    <label className="radio-label">
+                                        <input
+                                            name="visibility"
+                                            type="radio"
+                                            checked={visibility === 'ORGANIZATION'}
+                                            onChange={() => setVisibility('ORGANIZATION')}
+                                        />
+                                        <span className="radio-text">Team Workspace (My Organization)</span>
+                                    </label>
+                                    
+                                    <label className="radio-label">
+                                        <input
+                                            name="visibility"
+                                            type="radio"
+                                            checked={visibility === 'PUBLIC'}
+                                            onChange={() => setVisibility('PUBLIC')}
+                                        />
+                                        <span className="radio-text">Public (Everyone on CodeVault)</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+
+                            <div className="submit-btn">
+                                <Button
+                                    name={'Save Snippet'}
+                                    type={'submit'}
+                                    selector={'btn-submit'}
+                                    padding={'.8rem 1.5rem'}
+                                    borderRad={'0.8rem'}
+                                    fw={'bold'}
+                                    fs={'1.2rem'}
+                                    backgound={theme.colorPrimary || '#6c5ce7'}
+                                />
+                            </div>
+                        </form>
+                    </NewSnippetStyled>
+                </Private>
+            </MainContent>
+        </Layout>
     );
 }
+
+const NewSnippetStyled = styled.div`
+    padding: 2rem;
+    
+    .header-con {
+        margin-bottom: 2rem;
+        
+        h1 {
+            color: ${props => props.theme.colorTextLight};
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+    }
+    
+    .form-container {
+        background: ${props => props.theme.colorBg2};
+        border-radius: 1rem;
+        box-shadow: ${props => props.theme.shadow3};
+        border: 1px solid ${props => props.theme.borderColor};
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        max-width: 800px;
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            
+            label {
+                color: ${props => props.theme.colorGrey1};
+                font-weight: 600;
+                font-size: 1rem;
+            }
+            
+            input, textarea {
+                padding: 1rem;
+                border-radius: 0.5rem;
+                background: ${props => props.theme.colorBg3};
+                border: 1px solid ${props => props.theme.borderColor};
+                color: ${props => props.theme.colorTextLight};
+                outline: none;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+                
+                &:focus {
+                    border-color: ${props => props.theme.colorPrimary};
+                    box-shadow: 0 0 0 2px ${props => props.theme.colorPrimary + '40'};
+                }
+            }
+            
+            textarea {
+                font-family: 'Fira Code', monospace;
+                resize: vertical;
+                min-height: 200px;
+            }
+        }
+        
+        .visibility-group {
+            border: none;
+            padding: 0;
+            margin: 0;
+            
+            legend {
+                color: ${props => props.theme.colorGrey1};
+                font-weight: 600;
+                font-size: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .radio-options {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                
+                .radio-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.8rem;
+                    cursor: pointer;
+                    
+                    input[type="radio"] {
+                        appearance: none;
+                        width: 20px;
+                        height: 20px;
+                        border: 2px solid ${props => props.theme.colorGrey2};
+                        border-radius: 50%;
+                        outline: none;
+                        background: transparent;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        position: relative;
+                        
+                        &:checked {
+                            border-color: ${props => props.theme.colorPrimary};
+                            
+                            &::after {
+                                content: '';
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%, -50%);
+                                width: 10px;
+                                height: 10px;
+                                border-radius: 50%;
+                                background: ${props => props.theme.colorPrimary};
+                            }
+                        }
+                    }
+                    
+                    .radio-text {
+                        color: ${props => props.theme.colorTextLight};
+                        font-size: 1rem;
+                    }
+                }
+            }
+        }
+        
+        .submit-btn {
+            margin-top: 1rem;
+            display: flex;
+            
+            button {
+                width: 100%;
+            }
+        }
+    }
+`;
+

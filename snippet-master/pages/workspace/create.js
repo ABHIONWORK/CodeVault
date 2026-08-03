@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import Layout from '../../Components/Layout';
+import MainContent from '../../Components/MainContent/MainContent';
+import styled from 'styled-components';
+import { useThemeContext } from '../../context/themeContext';
+import Button from '../../Components/Button/Button';
+import Private from '../../Components/auth/Private';
 
 export default function CreateWorkspace() {
+    const theme = useThemeContext();
     const [name, setName] = useState('');
     const router = useRouter();
 
@@ -13,44 +20,124 @@ export default function CreateWorkspace() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
-                    Create a Workspace
-                </h2>
-            </div>
+        <Layout>
+            <MainContent>
+                <Private>
+                    <CreateWorkspaceStyled theme={theme}>
+                        <div className="center-container">
+                            <div className="header-con">
+                                <h1>Create a Workspace</h1>
+                            </div>
+                            
+                            <div className="form-container">
+                                <form onSubmit={handleSubmit}>
+                                    <div className="form-group">
+                                        <label htmlFor="name">Workspace Name</label>
+                                        <input
+                                            id="name"
+                                            name="name"
+                                            type="text"
+                                            required
+                                            placeholder="e.g. Acme Corp"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                        />
+                                    </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                                Workspace Name
-                            </label>
-                            <div className="mt-1">
-                                <input
-                                    id="name"
-                                    name="name"
-                                    type="text"
-                                    required
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-900 text-white"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                />
+                                    <div className="submit-btn">
+                                        <Button
+                                            name={'Create & Continue'}
+                                            type={'submit'}
+                                            selector={'btn-submit'}
+                                            padding={'.8rem 1.5rem'}
+                                            borderRad={'0.8rem'}
+                                            fw={'bold'}
+                                            fs={'1.2rem'}
+                                            backgound={theme.colorPrimary || '#6c5ce7'}
+                                        />
+                                    </div>
+                                </form>
                             </div>
                         </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                            >
-                                Create & Continue
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+                    </CreateWorkspaceStyled>
+                </Private>
+            </MainContent>
+        </Layout>
     );
 }
+
+const CreateWorkspaceStyled = styled.div`
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100px);
+    
+    .center-container {
+        width: 100%;
+        max-width: 500px;
+    }
+    
+    .header-con {
+        margin-bottom: 2rem;
+        text-align: center;
+        
+        h1 {
+            color: ${props => props.theme.colorTextLight};
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+    }
+    
+    .form-container {
+        background: ${props => props.theme.colorBg2};
+        border-radius: 1rem;
+        box-shadow: ${props => props.theme.shadow3};
+        border: 1px solid ${props => props.theme.borderColor};
+        padding: 2.5rem;
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                
+                label {
+                    color: ${props => props.theme.colorGrey1};
+                    font-weight: 600;
+                    font-size: 1rem;
+                }
+                
+                input {
+                    padding: 1rem;
+                    border-radius: 0.5rem;
+                    background: ${props => props.theme.colorBg3};
+                    border: 1px solid ${props => props.theme.borderColor};
+                    color: ${props => props.theme.colorTextLight};
+                    outline: none;
+                    font-size: 1rem;
+                    transition: all 0.3s ease;
+                    
+                    &:focus {
+                        border-color: ${props => props.theme.colorPrimary};
+                        box-shadow: 0 0 0 2px ${props => props.theme.colorPrimary + '40'};
+                    }
+                }
+            }
+            
+            .submit-btn {
+                margin-top: 1rem;
+                display: flex;
+                
+                button {
+                    width: 100%;
+                }
+            }
+        }
+    }
+`;
+

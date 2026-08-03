@@ -1,6 +1,13 @@
 import { useState } from 'react';
+import Layout from '../../Components/Layout';
+import MainContent from '../../Components/MainContent/MainContent';
+import styled from 'styled-components';
+import { useThemeContext } from '../../context/themeContext';
+import Button from '../../Components/Button/Button';
+import Private from '../../Components/auth/Private';
 
 export default function BillingDashboard() {
+    const theme = useThemeContext();
     const [loading, setLoading] = useState(false);
     
     // Mock data
@@ -9,8 +16,6 @@ export default function BillingDashboard() {
 
     const handleManageBilling = async () => {
         setLoading(true);
-        // Call backend POST /api/billing/portal to get the Stripe URL
-        console.log("Redirecting to Stripe Customer Portal...");
         setTimeout(() => {
             alert('Redirecting to Stripe Customer Portal (Mock)');
             setLoading(false);
@@ -19,8 +24,6 @@ export default function BillingDashboard() {
 
     const handleUpgrade = async () => {
         setLoading(true);
-        // Call backend POST /api/billing/checkout to get the Checkout URL
-        console.log("Creating Stripe Checkout Session for ENTERPRISE...");
         setTimeout(() => {
             alert('Redirecting to Stripe Checkout (Mock)');
             setLoading(false);
@@ -28,72 +31,198 @@ export default function BillingDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 py-10 px-4 sm:px-6 lg:px-8 text-white">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8">Workspace Billing</h1>
+        <Layout>
+            <MainContent>
+                <Private>
+                    <BillingStyled theme={theme}>
+                        <div className="header-con">
+                            <h1>Workspace Billing</h1>
+                        </div>
 
-                <div className="bg-gray-800 shadow sm:rounded-lg overflow-hidden border border-gray-700 mb-8">
-                    <div className="px-4 py-5 sm:px-6 flex justify-between items-center bg-gray-850">
-                        <div>
-                            <h3 className="text-lg leading-6 font-medium text-white">Current Plan</h3>
-                            <p className="mt-1 max-w-2xl text-sm text-gray-400">You are currently on the {currentTier} plan.</p>
-                        </div>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-indigo-100 text-indigo-800">
-                            {currentTier}
-                        </span>
-                    </div>
-                    <div className="border-t border-gray-700 px-4 py-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <div className="mb-4 sm:mb-0">
-                            <p className="text-sm text-gray-300">
-                                You have <strong>{activeUsers}</strong> active users. Your next invoice will be for <strong>${activeUsers * 15}.00</strong>.
-                            </p>
-                        </div>
-                        <div className="flex space-x-4">
-                            <button
-                                onClick={handleManageBilling}
-                                disabled={loading}
-                                className="inline-flex items-center px-4 py-2 border border-gray-600 shadow-sm text-sm font-medium rounded-md text-white bg-transparent hover:bg-gray-700 focus:outline-none"
-                            >
-                                Manage Billing & Invoices
-                            </button>
-                            <button
-                                onClick={handleUpgrade}
-                                disabled={loading}
-                                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
-                            >
-                                Upgrade to Enterprise
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-gray-800 shadow sm:rounded-lg overflow-hidden border border-gray-700">
-                    <div className="px-4 py-5 sm:px-6 bg-gray-850 border-b border-gray-700">
-                        <h3 className="text-lg leading-6 font-medium text-white">Plan Limits</h3>
-                    </div>
-                    <div className="p-6 space-y-6">
-                        <div>
-                            <div className="flex justify-between text-sm font-medium text-gray-300 mb-1">
-                                <span>Team Members (Unlimited)</span>
-                                <span>12 / ∞</span>
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <h3>Current Plan</h3>
+                                    <p>You are currently on the {currentTier} plan.</p>
+                                </div>
+                                <span className="badge">{currentTier}</span>
                             </div>
-                            <div className="w-full bg-gray-700 rounded-full h-2">
-                                <div className="bg-indigo-500 h-2 rounded-full" style={{ width: '10%' }}></div>
+                            <div className="card-body action-area">
+                                <div className="info">
+                                    <p>
+                                        You have <strong>{activeUsers}</strong> active users. Your next invoice will be for <strong>${activeUsers * 15}.00</strong>.
+                                    </p>
+                                </div>
+                                <div className="buttons">
+                                    <Button
+                                        name={'Manage Billing'}
+                                        type={'button'}
+                                        selector={'btn-manage'}
+                                        padding={'.8rem 1.5rem'}
+                                        borderRad={'0.8rem'}
+                                        fw={'bold'}
+                                        fs={'1rem'}
+                                        backgound={'transparent'}
+                                        click={handleManageBilling}
+                                    />
+                                    <Button
+                                        name={'Upgrade Plan'}
+                                        type={'button'}
+                                        selector={'btn-upgrade'}
+                                        padding={'.8rem 1.5rem'}
+                                        borderRad={'0.8rem'}
+                                        fw={'bold'}
+                                        fs={'1rem'}
+                                        backgound={theme.colorPrimary || '#6c5ce7'}
+                                        click={handleUpgrade}
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div>
-                            <div className="flex justify-between text-sm font-medium text-gray-300 mb-1">
-                                <span>AI Assistant Requests (500/mo limit)</span>
-                                <span>342 / 500</span>
+                        <div className="card">
+                            <div className="card-header">
+                                <h3>Plan Limits</h3>
                             </div>
-                            <div className="w-full bg-gray-700 rounded-full h-2">
-                                <div className="bg-green-500 h-2 rounded-full" style={{ width: '68%' }}></div>
+                            <div className="card-body limits">
+                                <div className="limit-item">
+                                    <div className="limit-text">
+                                        <span>Team Members (Unlimited)</span>
+                                        <span>12 / ∞</span>
+                                    </div>
+                                    <div className="progress-bar">
+                                        <div className="progress" style={{ width: '10%', background: theme.colorPrimary }}></div>
+                                    </div>
+                                </div>
+
+                                <div className="limit-item">
+                                    <div className="limit-text">
+                                        <span>AI Assistant Requests (500/mo limit)</span>
+                                        <span>342 / 500</span>
+                                    </div>
+                                    <div className="progress-bar">
+                                        <div className="progress" style={{ width: '68%', background: theme.colorSuccess || '#2ecc71' }}></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </BillingStyled>
+                </Private>
+            </MainContent>
+        </Layout>
     );
 }
+
+const BillingStyled = styled.div`
+    padding: 2rem;
+    
+    .header-con {
+        margin-bottom: 2rem;
+        h1 {
+            color: ${props => props.theme.colorTextLight};
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+    }
+    
+    .card {
+        background: ${props => props.theme.colorBg2};
+        border-radius: 1rem;
+        box-shadow: ${props => props.theme.shadow3};
+        border: 1px solid ${props => props.theme.borderColor};
+        margin-bottom: 2rem;
+        overflow: hidden;
+        
+        .card-header {
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid ${props => props.theme.borderColor};
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            h3 {
+                color: ${props => props.theme.colorTextLight};
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+            p {
+                color: ${props => props.theme.colorGrey2};
+                margin-top: 0.5rem;
+            }
+            
+            .badge {
+                background: ${props => props.theme.colorPrimary2};
+                color: ${props => props.theme.colorWhite};
+                padding: 0.5rem 1rem;
+                border-radius: 2rem;
+                font-weight: 700;
+                font-size: 0.9rem;
+            }
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+            
+            &.action-area {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 1rem;
+                
+                .info p {
+                    color: ${props => props.theme.colorGrey0};
+                    strong {
+                        color: ${props => props.theme.colorTextLight};
+                    }
+                }
+                
+                .buttons {
+                    display: flex;
+                    gap: 1rem;
+                    
+                    .btn-manage {
+                        border: 1px solid ${props => props.theme.borderColor} !important;
+                        color: ${props => props.theme.colorTextLight} !important;
+                        &:hover {
+                            background: rgba(255,255,255,0.05) !important;
+                        }
+                    }
+                }
+            }
+            
+            &.limits {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+                
+                .limit-item {
+                    .limit-text {
+                        display: flex;
+                        justify-content: space-between;
+                        color: ${props => props.theme.colorGrey1};
+                        margin-bottom: 0.5rem;
+                        font-weight: 500;
+                        font-size: 0.95rem;
+                    }
+                    
+                    .progress-bar {
+                        width: 100%;
+                        height: 0.5rem;
+                        background: ${props => props.theme.colorBg3};
+                        border-radius: 1rem;
+                        overflow: hidden;
+                        
+                        .progress {
+                            height: 100%;
+                            border-radius: 1rem;
+                            transition: width 0.5s ease;
+                        }
+                    }
+                }
+            }
+        }
+    }
+`;
+
