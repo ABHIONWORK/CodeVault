@@ -26,5 +26,5 @@ public interface SnippetRepository extends JpaRepository<Snippet, Long> {
     @Query("SELECT s FROM Snippet s JOIN User u ON s IN elements(u.bookmarkedSnippets) WHERE u.email = :email")
     List<Snippet> findBookmarksByUserEmail(@Param("email") String email);
 
-    List<Snippet> findTop10ByOrderByBookmarksCountDesc();
+    List<Snippet> findTop10ByOrderByBookmarkCountDesc();
 }
